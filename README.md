@@ -30,6 +30,9 @@ sudo apt-get update && sudo apt-get upgrade -y
 ```
 Ensuite avec raspiconfig expension de la partition au dimension de la carte SD
 et le hostname
+```sh
+sudo raspi-config
+```
 
 ### Installation de docker
 ```sh
@@ -84,6 +87,6 @@ il est lier au fichier config.env
 
 
 ## License
-MIT
+@@MIT
 
 **Free Software, Hell Yeah!**
