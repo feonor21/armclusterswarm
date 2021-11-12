@@ -26,7 +26,7 @@ cela activeras de base le SSH
 ### First boot et conf
 update du systeme complet
 ```sh
-sudo apt-get update && sudo apt-get upgrade -y
+sudo apt-get update && sudo apt-get full-upgrade -y && sudo rpi-eeprom-update -d -a
 ```
 Ensuite avec raspiconfig expension de la partition au dimension de la carte SD
 et le hostname
