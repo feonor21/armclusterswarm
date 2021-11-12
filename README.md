@@ -12,7 +12,7 @@ le but est de creer mon cluster swarm avec des raspberry pi 4.
 - un disque reseau disponible
 
 ## Tech
-- [raspbian] - en OS des raspberry
+- [raspbian](https://downloads.raspberrypi.org/raspios_lite_arm64/images/) - en OS des raspberry (version beta 64bit)
 - [traefik] - en reverse proxy et loadbalancing
 - [swarmpit] - en gestion
 - [nginx] - en appli web front end
