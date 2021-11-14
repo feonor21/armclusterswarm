@@ -1,0 +1,23 @@
+version: '3.3'
+services:
+  frontend:
+    image: traefik/whoami:latest
+    networks:
+     - traefik-public
+    logging:
+      driver: json-file
+    deploy:
+      replicas: 10
+      labels:
+        traefik.http.routers.whoami.rule: Host(`whoami.eva.home`)
+        traefik.http.routers.whoami.service: whoami
+        traefik.http.services.whoami.loadbalancer.server.port: '80'
+        traefik.constraint-label: traefik-public
+        traefik.enable: 'true'
+        traefik.http.routers.whoami.entrypoints: http
+        swarmpit.service.deployment.autoredeploy: 'true'
+      update_config:
+        parallelism: 2
+networks:
+  traefik-public:
+    external: true

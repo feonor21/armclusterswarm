@@ -1,0 +1,99 @@
+version: '3.3'
+services:
+  swarmpit:
+    image: swarmpit/swarmpit:latest
+    environment:
+      SWARMPIT_DB: http://swarmpitdb:5984
+      SWARMPIT_INFLUXDB: http://swarmpitinfluxdb:8086
+    volumes:
+     - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+     - agents
+     - traefik-public
+    logging:
+      driver: json-file
+    deploy:
+      labels:
+        traefik.http.routers.swarmpit-https.entrypoints: https
+        traefik.http.routers.swarmpit-https.tls.certresolver: le
+        traefik.http.routers.swarmpit-http.rule: Host(`swarm.eva.home`)
+        traefik.http.routers.swarmpit-http.middlewares: https-redirect
+        traefik.http.services.swarmpit.loadbalancer.server.port: '8080'
+        traefik.http.routers.swarmpit-http.entrypoints: http
+        traefik.constraint-label: traefik-public
+        traefik.http.routers.swarmpit-https.rule: Host(`swarm.eva.home`)
+        traefik.enable: 'true'
+        traefik.http.routers.swarmpit-https.tls: 'true'
+      placement:
+        constraints:
+         - node.role == manager
+      resources:
+        reservations:
+          memory: 512M
+        limits:
+          memory: 1024M
+  swarmpitagent:
+    image: swarmpit/agent:latest
+    environment:
+      DOCKER_API_VERSION: '1.35'
+      EVENT_ENDPOINT: http://swarmpit:8080/events
+      HEALTH_CHECK_ENDPOINT: http://swarmpit:8080/version
+    volumes:
+     - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+     - agents
+    logging:
+      driver: json-file
+    deploy:
+      mode: global
+      labels:
+        swarmpit.agent: 'true'
+      resources:
+        reservations:
+          memory: 32M
+        limits:
+          memory: 64M
+  swarmpitdb:
+    image: treehouses/couchdb:2.3.1
+    volumes:
+     - swarmpitdb-data:/opt/couchdb/data
+    networks:
+     - agents
+    logging:
+      driver: json-file
+    deploy:
+      placement:
+        constraints:
+         - node.role == manager
+      resources:
+        reservations:
+          memory: 128M
+        limits:
+          memory: 256M
+  swarmpitinfluxdb:
+    image: influxdb:1.7
+    volumes:
+     - swarmpitinflux-data:/var/lib/influxdb
+    networks:
+     - agents
+    logging:
+      driver: json-file
+    deploy:
+      placement:
+        constraints:
+         - node.role == manager
+      resources:
+        reservations:
+          memory: 128M
+        limits:
+          memory: 256M
+networks:
+  agents:
+    external: true
+  traefik-public:
+    external: true
+volumes:
+  swarmpitdb-data:
+    external: true
+  swarmpitinflux-data:
+    external: true

@@ -1,0 +1,54 @@
+version: '3.3'
+services:
+  traefik:
+    image: traefik:latest
+    command:
+     - --providers.docker
+     - --providers.docker.constraints=Label(`traefik.constraint-label`, `traefik-public`)
+     - --providers.docker.exposedbydefault=false
+     - --providers.docker.swarmmode
+     - --providers.docker.network=traefik-public
+     - --entrypoints.http.address=:80
+     - --entrypoints.https.address=:443
+     - --certificatesresolvers.le.acme.email=perez.vincent21@gmail.com
+     - --certificatesresolvers.le.acme.storage=/certificates/acme.json
+     - --certificatesresolvers.le.acme.tlschallenge=true
+     - --accesslog
+     - --log
+     - --api
+    ports:
+     - 80:80
+     - 443:443
+    volumes:
+     - /var/run/docker.sock:/var/run/docker.sock:ro
+     - traefik-public-certificates:/certificates
+    networks:
+     - traefik-public
+    logging:
+      driver: json-file
+    deploy:
+      labels:
+        traefik.http.middlewares.https-redirect.redirectscheme.scheme: https
+        traefik.http.routers.traefik-public-https.rule: Host(`traefik.eva.home`)
+        traefik.http.routers.traefik-public-https.tls: 'true'
+        traefik.http.services.traefik-public.loadbalancer.server.port: '8080'
+        traefik.http.routers.traefik-public-https.service: api@internal
+        traefik.http.routers.traefik-public-http.middlewares: https-redirect
+        traefik.http.routers.traefik-public-http.entrypoints: http
+        swarmpit.service.deployment.autoredeploy: 'true'
+        traefik.http.routers.traefik-public-https.entrypoints: https
+        traefik.http.middlewares.https-redirect.redirectscheme.permanent: 'true'
+        traefik.constraint-label: traefik-public
+        traefik.http.routers.traefik-public-http.rule: Host(`traefik.eva.home`)
+        traefik.docker.network: traefik-public
+        traefik.enable: 'true'
+        traefik.http.routers.traefik-public-https.tls.certresolver: le
+      placement:
+        constraints:
+         - node.role == manager
+networks:
+  traefik-public:
+    external: true
+volumes:
+  traefik-public-certificates:
+    external: true

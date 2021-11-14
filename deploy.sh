@@ -33,15 +33,21 @@ function configure()
 
 function deploy()
 {
-    if [ ! -f stack-config.env ]; then
+
+    #printf "${CGREEN}COnfigure Firewall${COFF}\n"
+    ./deploylight.sh
+
+    #printf "${CGREEN}Deploying network and volume${COFF}\n"
+    configure
+    printf "${CGREEN}Deploying stack${COFF}\n"
+    if [ ! -f config.env ]; then
         printf "${CRED}No stack-config.env file found${COFF}\n"
         printf "${CRED}Copy the configuration file and edit it${COFF}\n"
         exit 1
     fi
-
-    configure
-    printf "${CGREEN}Deploying stack${COFF}\n"
-    source stack-config.env && docker stack deploy --prune --with-registry-auth --resolve-image=always --compose-file docker-cloud.yml swarm 2>&1 | sed "${SED_PATTERN}"
+    source config.env && docker stack deploy --prune --with-registry-auth --resolve-image=always --compose-file traefik.yml traefik 2>&1 | sed "${SED_PATTERN}"
+    source config.env && docker stack deploy --prune --with-registry-auth --resolve-image=always --compose-file swarpit.yml swarmpit 2>&1 | sed "${SED_PATTERN}"
+    source config.env && docker stack deploy --prune --with-registry-auth --resolve-image=always --compose-file whoami.yml whoami 2>&1 | sed "${SED_PATTERN}"
 }
 
 deploy
