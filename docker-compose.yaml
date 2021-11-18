@@ -56,7 +56,7 @@ services:
   swarmpitdb:
     image: treehouses/couchdb:2.3.1
     volumes:
-     - swarmpitdb-data:/opt/couchdb/data
+     - /swarm/data/swarmpit/db:/opt/couchdb/data
     networks:
      - agents
     logging:
@@ -73,7 +73,7 @@ services:
   swarmpitinfluxdb:
     image: influxdb:1.7
     volumes:
-     - swarmpitinflux-data:/var/lib/influxdb
+     - /swarm/data/swarmpit/influx:/var/lib/influxdb
     networks:
      - agents
     logging:
@@ -91,9 +91,4 @@ networks:
   agents:
     external: true
   traefik-public:
-    external: true
-volumes:
-  swarmpitdb-data:
-    external: true
-  swarmpitinflux-data:
     external: true
