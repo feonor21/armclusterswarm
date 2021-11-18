@@ -16,12 +16,12 @@ services:
       labels:
         traefik.http.routers.swarmpit-https.entrypoints: https
         traefik.http.routers.swarmpit-https.tls.certresolver: le
-        traefik.http.routers.swarmpit-http.rule: Host(`swarm.eva.home`)
+        traefik.http.routers.swarmpit-http.rule: Host(`${PROXY_SWARMPIT_DOMAIN?Variable not set}`)
         traefik.http.routers.swarmpit-http.middlewares: https-redirect
         traefik.http.services.swarmpit.loadbalancer.server.port: '8080'
         traefik.http.routers.swarmpit-http.entrypoints: http
         traefik.constraint-label: traefik-public
-        traefik.http.routers.swarmpit-https.rule: Host(`swarm.eva.home`)
+        traefik.http.routers.swarmpit-https.rule: Host(`${PROXY_SWARMPIT_DOMAIN?Variable not set}`)
         traefik.enable: 'true'
         traefik.http.routers.swarmpit-https.tls: 'true'
       placement:

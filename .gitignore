@@ -1,3 +1,5 @@
 
 *.env
 miningpool.yml
+pi4_xmrminer/dockerfile
+pi4_xmrminer/dockerfile.save
