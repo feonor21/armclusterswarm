@@ -21,33 +21,25 @@ function configure()
 {
     printf "${CGREEN}Creating data volumes${COFF}\n"
     
-    docker volume create traefik-public-certificates 2>&1 | sed "${SED_PATTERN}"
     docker volume create swarmpitdb-data 2>&1 | sed "${SED_PATTERN}"
     docker volume create swarmpitinflux-data 2>&1 | sed "${SED_PATTERN}"
 
     printf "${CGREEN}Creating networks${COFF}\n"
 
     docker network create -d overlay --attachable agents 2>&1 | sed "${SED_PATTERN}"
-    docker network create -d overlay --attachable traefik-public 2>&1 | sed "${SED_PATTERN}"
 }
 
 function deploy()
 {
 
-    #printf "${CGREEN}COnfigure Firewall${COFF}\n"
-    ./deploylight.sh
-
-    #printf "${CGREEN}Deploying network and volume${COFF}\n"
     configure
     printf "${CGREEN}Deploying stack${COFF}\n"
     if [ ! -f config.env ]; then
         printf "${CRED}No stack-config.env file found${COFF}\n"
-        printf "${CRED}Copy the configuration file and edit it${COFF}\n"
-        exit 1
+        printf "${CRED}Copy of the configuration file sample to configuration file${COFF}\n"
+        cp config.env.sample config.env
     fi
-    source config.env && docker stack deploy --prune --with-registry-auth --resolve-image=always --compose-file traefik.yml traefik 2>&1 | sed "${SED_PATTERN}"
-    source config.env && docker stack deploy --prune --with-registry-auth --resolve-image=always --compose-file swarpit.yml swarmpit 2>&1 | sed "${SED_PATTERN}"
-    source config.env && docker stack deploy --prune --with-registry-auth --resolve-image=always --compose-file whoami.yml whoami 2>&1 | sed "${SED_PATTERN}"
+    source config.env && docker stack deploy --prune --with-registry-auth --resolve-image=always --compose-file docker-compose.yaml swarmpit 2>&1 | sed "${SED_PATTERN}"
 }
 
 deploy
